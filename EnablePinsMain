@@ -1,0 +1,36 @@
+//		if (HAL_GPIO_ReadPin(PushButton1_GPIO_Port, PushButton1_Pin))
+//		   {
+//			HAL_GPIO_TogglePin(Enable11_GPIO_Port,Enable11_Pin);
+//			HAL_Delay(100);
+//		   }else
+//		   {
+//			HAL_GPIO_WritePin(Enable11_GPIO_Port,Enable11_Pin,GPIO_PIN_RESET);
+//		   }
+
+//		HAL_GPIO_WritePin(LD1_GPIO_Port,LD1_Pin,GPIO_PIN_SET);
+//		HAL_GPIO_WritePin(Enable0_GPIO_Port,Enable0_Pin,GPIO_PIN_SET);
+//		HAL_GPIO_WritePin(Enable1_GPIO_Port,Enable1_Pin,GPIO_PIN_SET);
+//		HAL_GPIO_WritePin(Enable2_GPIO_Port,Enable2_Pin,GPIO_PIN_SET);
+//		HAL_GPIO_WritePin(Enable3_GPIO_Port,Enable3_Pin,GPIO_PIN_SET);
+//		HAL_GPIO_WritePin(Enable4_GPIO_Port,Enable4_Pin,GPIO_PIN_SET);
+//		HAL_GPIO_WritePin(Enable5_GPIO_Port,Enable5_Pin,GPIO_PIN_SET);
+//		HAL_GPIO_WritePin(Enable6_GPIO_Port,Enable6_Pin,GPIO_PIN_SET);
+//		HAL_GPIO_WritePin(Enable7_GPIO_Port,Enable7_Pin,GPIO_PIN_SET);
+//		HAL_GPIO_WritePin(Enable8_GPIO_Port,Enable8_Pin,GPIO_PIN_SET);
+//		HAL_GPIO_WritePin(Enable9_GPIO_Port,Enable9_Pin,GPIO_PIN_SET);
+//	//	HAL_GPIO_WritePin(Enable11_GPIO_Port,Enable11_Pin,GPIO_PIN_SET);
+//
+//		HAL_Delay(10000);
+//		HAL_GPIO_WritePin(LD1_GPIO_Port,LD1_Pin,GPIO_PIN_RESET);
+//		HAL_GPIO_WritePin(Enable0_GPIO_Port,Enable0_Pin,GPIO_PIN_RESET);
+//		HAL_GPIO_WritePin(Enable1_GPIO_Port,Enable1_Pin,GPIO_PIN_RESET);
+//		HAL_GPIO_WritePin(Enable2_GPIO_Port,Enable2_Pin,GPIO_PIN_RESET);
+//		HAL_GPIO_WritePin(Enable3_GPIO_Port,Enable3_Pin,GPIO_PIN_RESET);
+//		HAL_GPIO_WritePin(Enable4_GPIO_Port,Enable4_Pin,GPIO_PIN_RESET);
+//		HAL_GPIO_WritePin(Enable5_GPIO_Port,Enable5_Pin,GPIO_PIN_RESET);
+//		HAL_GPIO_WritePin(Enable6_GPIO_Port,Enable6_Pin,GPIO_PIN_RESET);
+//		HAL_GPIO_WritePin(Enable7_GPIO_Port,Enable7_Pin,GPIO_PIN_RESET);
+//		HAL_GPIO_WritePin(Enable8_GPIO_Port,Enable8_Pin,GPIO_PIN_RESET);
+//		HAL_GPIO_WritePin(Enable9_GPIO_Port,Enable9_Pin,GPIO_PIN_RESET);
+//	//	HAL_GPIO_WritePin(Enable11_GPIO_Port,Enable11_Pin,GPIO_PIN_RESET);
+//		HAL_Delay(10000);

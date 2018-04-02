@@ -47,9 +47,6 @@
 
 /* Private define ------------------------------------------------------------*/
 
-#define CAN_CS_Pin GPIO_PIN_8
-#define CAN_CS_GPIO_Port GPIOE
-
 /* ########################## Assert Selection ############################## */
 /**
   * @brief Uncomment the line below to expanse the "assert_param" macro in the 
@@ -58,7 +55,8 @@
 /* #define USE_FULL_ASSERT    1U */
 
 /* USER CODE BEGIN Private defines */
-
+#define CAN_CS_Pin GPIO_PIN_8
+#define CAN_CS_GPIO_Port GPIOE
 typedef enum {
 	false,true
 } bool;

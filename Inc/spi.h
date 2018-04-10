@@ -1,7 +1,8 @@
 /**
   ******************************************************************************
-  * File Name          : main.hpp
-  * Description        : This file contains the common defines of the application
+  * File Name          : SPI.h
+  * Description        : This file provides code for the configuration
+  *                      of the SPI instances.
   ******************************************************************************
   * This notice applies to any and all portions of this file
   * that are not between comment pairs USER CODE BEGIN and
@@ -46,61 +47,51 @@
   ******************************************************************************
   */
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __MAIN_H
-#define __MAIN_H
-  /* Includes ------------------------------------------------------------------*/
-
-/* Includes ------------------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
-#include "oppsett.h"
-
-
-/* USER CODE END Includes */
-
-/* Private define ------------------------------------------------------------*/
-
-#define DRIVE_EN_Pin GPIO_PIN_3
-#define DRIVE_EN_GPIO_Port GPIOA
-#define CAN_CS_Pin GPIO_PIN_8
-#define CAN_CS_GPIO_Port GPIOE
-#define CAN_INT_Pin GPIO_PIN_10
-#define CAN_INT_GPIO_Port GPIOE
-#define CAN_INT_EXTI_IRQn EXTI15_10_IRQn
-#define DRIVE_DIR_Pin GPIO_PIN_14
-#define DRIVE_DIR_GPIO_Port GPIOE
-
-/* ########################## Assert Selection ############################## */
-/**
-  * @brief Uncomment the line below to expanse the "assert_param" macro in the 
-  *        HAL drivers code
-  */
-/* #define USE_FULL_ASSERT    1U */
-
-/* USER CODE BEGIN Private defines */
-
-typedef enum {
-	false,true
-} bool;
-
-/* USER CODE END Private defines */
-
+#ifndef __spi_H
+#define __spi_H
 #ifdef __cplusplus
  extern "C" {
 #endif
-void _Error_Handler(char *, int);
 
-#define Error_Handler() _Error_Handler(__FILE__, __LINE__)
+/* Includes ------------------------------------------------------------------*/
+#include "stm32f4xx_hal.h"
+#include "main.h"
+
+/* USER CODE BEGIN Includes */
+//#ifdef canModulMB1
+//extern SPI_HandleTypeDef hspi3;
+//#endif
+//
+//#ifdef canModulMB2
+//extern SPI_HandleTypeDef hspi2;
+//#endif
+/* USER CODE END Includes */
+
+extern SPI_HandleTypeDef hspi3;
+
+/* USER CODE BEGIN Private defines */
+//
+/* USER CODE END Private defines */
+
+extern void _Error_Handler(char *, int);
+
+void MX_SPI3_Init(void);
+
+/* USER CODE BEGIN Prototypes */
+//
+/* USER CODE END Prototypes */
+
 #ifdef __cplusplus
 }
 #endif
+#endif /*__ spi_H */
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-*/ 
+  */
 
-#endif /* __MAIN_H */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

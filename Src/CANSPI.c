@@ -1,3 +1,4 @@
+#include <oppsett.h>
 #include "CANSPI.h"
 #include "MCP2515.h"
 
@@ -38,44 +39,44 @@ bool CANSPI_Initialize(void)
   RXM1 RXM1reg;
       
   /* sett Rx Mask-verdier*/
-  RXM0reg.RXM0SIDH = 0x00;
-  RXM0reg.RXM0SIDL = 0x00;
+  RXM0reg.RXM0SIDH = 0x00; //(mask0&0x7F8)>>3;
+  RXM0reg.RXM0SIDL = 0x00;// (mask0&0x7)<<5;
   RXM0reg.RXM0EID8 = 0x00;
   RXM0reg.RXM0EID0 = 0x00;
   
-  RXM1reg.RXM1SIDH = 0x00;
-  RXM1reg.RXM1SIDL = 0x00;
+  RXM1reg.RXM1SIDH = 0x00; //(mask1&0x7F8)>>3;
+  RXM1reg.RXM1SIDL = 0x00; //(mask1&0x7)<<5;
   RXM1reg.RXM1EID8 = 0x00;
   RXM1reg.RXM1EID0 = 0x00;
   
   /* sett RxFilter verdier */
-  RXF0reg.RXF0SIDH = 0x00;      
-  RXF0reg.RXF0SIDL = 0x00;      //Standard Filter
+  RXF0reg.RXF0SIDH = 0x00; //(filter0&0x7F8)>>3;
+  RXF0reg.RXF0SIDL = 0x00; //(filter0&0x7)<<5;     //Standard Filter
   RXF0reg.RXF0EID8 = 0x00;
   RXF0reg.RXF0EID0 = 0x00;
   
-  RXF1reg.RXF1SIDH = 0x00;
-  RXF1reg.RXF1SIDL = 0x08;      //Extended Filter
+  RXF1reg.RXF1SIDH = 0x00; //(filter1&0x7F8)>>3;
+  RXF1reg.RXF1SIDL = 0x00; //(filter1&0x7)<<5;     //Extended Filter
   RXF1reg.RXF1EID8 = 0x00;
   RXF1reg.RXF1EID0 = 0x00;
   
-  RXF2reg.RXF2SIDH = 0x00;
-  RXF2reg.RXF2SIDL = 0x00;
+  RXF2reg.RXF2SIDH = 0x00; //(filter2&0x7F8)>>3;
+  RXF2reg.RXF2SIDL = 0x00; //(filter2&0x7)<<5;
   RXF2reg.RXF2EID8 = 0x00;
   RXF2reg.RXF2EID0 = 0x00;
   
-  RXF3reg.RXF3SIDH = 0x00;
-  RXF3reg.RXF3SIDL = 0x00;
+  RXF3reg.RXF3SIDH = 0x00; //(filter3&0x7F8)>>3;
+  RXF3reg.RXF3SIDL = 0x00; //(filter3&0x7)<<5;
   RXF3reg.RXF3EID8 = 0x00;
   RXF3reg.RXF3EID0 = 0x00;
   
-  RXF4reg.RXF4SIDH = 0x00;
-  RXF4reg.RXF4SIDL = 0x00;
+  RXF4reg.RXF4SIDH = 0x00; //(filter4&0x7F8)>>3;
+  RXF4reg.RXF4SIDL = 0x00; //(filter4&0x7)<<5;
   RXF4reg.RXF4EID8 = 0x00;
   RXF4reg.RXF4EID0 = 0x00;
   
-  RXF5reg.RXF5SIDH = 0x00;
-  RXF5reg.RXF5SIDL = 0x08;
+  RXF5reg.RXF5SIDH = 0x00; //(filter5&0x7F8)>>3;
+  RXF5reg.RXF5SIDL = 0x00; //(filter5&0x7)<<5;
   RXF5reg.RXF5EID8 = 0x00;
   RXF5reg.RXF5EID0 = 0x00;
   
@@ -100,22 +101,23 @@ bool CANSPI_Initialize(void)
   /* Accept All (Standard + Extended) */
   MCP2515_WriteByte(MCP2515_RXB0CTRL, 0x04);    //Enable BUKT, Accept Filter 0
   MCP2515_WriteByte(MCP2515_RXB1CTRL, 0x01);    //Accept Filter 1
+  MCP2515_WriteByte(MCP2515_CANINTE, 0x03);		//Enable interrupt on RXB0/RXB1
       
   /* 
-  * tq = 2 * (brp(0) + 1) / 16000000 = 0.125us
+  * tq = 2 * (brp(0) + 1) / 10000000 = 0.2us
   * tbit = (SYNC_SEG(1 fixed) + PROP_SEG + PS1 + PS2)
-  * tbit = 1tq + 5tq + 6tq + 4tq = 16tq
-  * 16tq = 2us = 500kbps
+  * tbit = 1tq + 1tq + 5tq + 3tq = 10tq
+  * 10tq = 2us = 500kbps
   */
   
   /* 00(SJW 1tq) 000000 */  
   MCP2515_WriteByte(MCP2515_CNF1, 0x00);
   
-  /* 1 1 100(5tq) 101(6tq) */  
-  MCP2515_WriteByte(MCP2515_CNF2, 0xE5);
+  /* 1 1 100(5tq PS1) 000(1tq PRO) */
+  MCP2515_WriteByte(MCP2515_CNF2, 0xE0);
   
-  /* 1 0 000 011(4tq) */  
-  MCP2515_WriteByte(MCP2515_CNF3, 0x83);
+  /* 1 0 000 010(3tq PS2) */
+  MCP2515_WriteByte(MCP2515_CNF3, 0x82);
   
   /* Sjekk om normalmodus • */
   if(!MCP2515_SetNormalMode())
@@ -199,7 +201,7 @@ uint8_t CANSPI_Receive(uCAN_MSG *tempCanMsg)
     {
       tempCanMsg->frame.idType = (uint8_t) dEXTENDED_CAN_MSG_ID_2_0B;
       tempCanMsg->frame.id = convertReg2ExtendedCANid(rxReg.RXBnEID8, rxReg.RXBnEID0, rxReg.RXBnSIDH, rxReg.RXBnSIDL);
-    } 
+    }
     else 
     {
       /* Standard type */
@@ -217,6 +219,7 @@ uint8_t CANSPI_Receive(uCAN_MSG *tempCanMsg)
     tempCanMsg->frame.data6 = rxReg.RXBnD6;
     tempCanMsg->frame.data7 = rxReg.RXBnD7;
     
+    MCP2515_WriteByte(MCP2515_CANINTF,0x00); // Resetter flagg
     returnValue = 1;
   }
   

@@ -50,8 +50,9 @@
 #include "main.h"
 #include "stm32f4xx_hal.h"
 #include "cmsis_os.h"
-#include "adc.h"
-#include "spi.h"
+#include "SPI_oppsett.h"
+#include "queue.h"
+#include "TIM_oppsett.h"
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
@@ -59,18 +60,23 @@
 #include "motorDriver.h"
 #include "stdio.h"
 #include "stdlib.h"
+//#include "adc.h"
+//#include "stm32f4xx_hal_adc_ex.h"
 
+// **** ADC **** //
+#define ADC_0V_VALUE                            0
+#define ADC_1V_VALUE                            1241
+#define ADC_2V_VALUE                            2482
+#define ADC_3V_VALUE                            3723
+// **** ADC END **** //
 
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
 
+
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-
-// **** ADC **** //
-uint32_t adcResult = 0;
-// **** ADC END **** //
 
 uCAN_MSG txMessage;
 uCAN_MSG rxMessage;
@@ -82,7 +88,7 @@ uint16_t tellertest;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 void MX_FREERTOS_Init(void);
-
+//void MX_ADC1_Init(void);
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
 
@@ -117,8 +123,9 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  //MX_SPI3_Init();
-  MX_ADC1_Init();
+  SPI_CAN_Init();
+  TIMER_Init();
+ // MX_ADC1_Init();
 
   /* USER CODE BEGIN 2 */
   CANSPI_Initialize();
@@ -135,22 +142,60 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
-  /* USER CODE END WHILE */
+	while (1) {
 
-  /* USER CODE BEGIN 3 */
+//    	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_15, GPIO_PIN_SET); // LED2
+//    	HAL_Delay(1000);
+//    	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_15, GPIO_PIN_RESET); // LED2
+//    	HAL_Delay(1000);
 
-	  // **** ADC **** //
-	 	HAL_ADC_Start(&hadc1);
+//		HAL_GPIO_WritePin(GPIOE, GPIO_PIN_15, GPIO_PIN_SET); // LED1
+//
+//		HAL_ADC_Start(&hadc1);
+//
+//		HAL_ADC_PollForConversion(&hadc1, 100);
+//
+//		adcResult = HAL_ADC_GetValue(&hadc1);
+//
+//		HAL_ADC_Stop(&hadc1);
 
-	 	HAL_ADC_PollForConversion(&hadc1, 100);
 
-	 	adcResult = HAL_ADC_GetValue(&hadc1);
+//				if ((adcResult >= ADC_0V_VALUE) && (adcResult < ADC_1V_VALUE))
+//						    {
+//						      HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);
+//						      HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_RESET);
+//						      HAL_GPIO_WritePin(GPIOC, GPIO_PIN_3, GPIO_PIN_RESET);
+//						      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
+//						}
+//
+//						if ((adcResult >= ADC_1V_VALUE) && (adcResult < ADC_2V_VALUE))
+//							{
+//						      HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);
+//						      HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_SET);
+//						      HAL_GPIO_WritePin(GPIOC, GPIO_PIN_3, GPIO_PIN_RESET);
+//						      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
+//						}
+//
+//						if ((adcResult >= ADC_2V_VALUE) && (adcResult < ADC_3V_VALUE))
+//						   {
+//						      HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);
+//						      HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_SET);
+//						      HAL_GPIO_WritePin(GPIOC, GPIO_PIN_3, GPIO_PIN_SET);
+//						      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
+//						}
+//
+//						if (adcResult >= ADC_3V_VALUE)
+//						   {
+//						      HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);
+//						      HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_SET);
+//						      HAL_GPIO_WritePin(GPIOC, GPIO_PIN_3, GPIO_PIN_SET);
+//						      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
+//						 }
 
-	 	HAL_ADC_Stop(&hadc1);
-	  // **** ADC END **** //
-  }
+
+
+//				HAL_Delay(100);
+	}
   /* USER CODE END 3 */
 
 }

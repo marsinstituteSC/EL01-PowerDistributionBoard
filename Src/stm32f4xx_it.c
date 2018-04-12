@@ -35,23 +35,21 @@
 #include "stm32f4xx.h"
 #include "stm32f4xx_it.h"
 #include "cmsis_os.h"
-
-/* USER CODE BEGIN 0 */
 #include "CANSPI.h"
 #include "queue.h"
+
+/* USER CODE BEGIN 0 */
+
+/* USER CODE END 0 */
+
+/* External variables --------------------------------------------------------*/
 
 extern TIM_HandleTypeDef htim2;
 extern uCAN_MSG rxMessage;
 extern QueueHandle_t MeldingQueueHandle;
 extern SemaphoreHandle_t ISRSemaHandle;
-
 uint8_t paa = 1;
 uint16_t teller = 0;
-/* USER CODE END 0 */
-
-/* External variables --------------------------------------------------------*/
-
-
 
 /******************************************************************************/
 /*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
@@ -97,15 +95,15 @@ void TIM2_IRQHandler(void)
 */
 void EXTI15_10_IRQHandler(void)
 {
-  /* USER CODE BEGIN EXTI15_10_IRQn 0 */
 	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-
+  /* USER CODE BEGIN EXTI15_10_IRQn 0 */
 	xSemaphoreGiveFromISR(ISRSemaHandle,&xHigherPriorityTaskWoken);
 
   /* USER CODE END EXTI15_10_IRQn 0 */
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_10);
-  /* USER CODE BEGIN EXTI15_10_IRQn 1 */
+	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_10);
+  /* USER CODE BEGIN EXTI15_10_IRQn 1 */;
   /* USER CODE END EXTI15_10_IRQn 1 */
+  	portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 /* USER CODE BEGIN 1 */

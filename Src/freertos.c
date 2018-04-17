@@ -53,7 +53,10 @@
 #include "cmsis_os.h"
 #include "CANSPI.h"
 #include "math.h"
-//#include "adc.h"
+#include "adc.h"
+#include "mux.h"
+#include "enable.h"
+#include "MCP2515.h"
 
 /* USER CODE BEGIN Includes */     
 #define B(x) S_to_binary_(#x)
@@ -64,14 +67,17 @@ osThreadId defaultTaskHandle;
 osThreadId SettFartTaskHandle;
 osThreadId AckermannTaskHandle;
 osThreadId CANbehandlingHandle;
+osThreadId ADCTaskHandle;
 QueueHandle_t MeldingQueueHandle;
 QueueHandle_t FartQueueHandle;
 QueueHandle_t AckerQueueHandle;
 QueueHandle_t EnableCTRLQueueHandle;
 SemaphoreHandle_t ISRSemaHandle;
+//SemaphoreHandle_t ADCSemaHandle;
 
 uint16_t teller2 = 0;
 extern uint16_t tellertest;
+
 
 uint32_t enablekontrolltest;
 
@@ -80,6 +86,10 @@ uint32_t enablekontrolltest;
 //osMessageQId MeldingQueueHandle;
 
 /* USER CODE BEGIN Variables */
+//#define ADC_0V_VALUE                            0
+//#define ADC_1V_VALUE                            1241
+//#define ADC_2V_VALUE                            2482
+//#define ADC_3V_VALUE                            3723
 
 /* USER CODE END Variables */
 
@@ -88,9 +98,11 @@ void StartDefaultTask(void const * argument);
 void StartTask02(void const * argument);
 void StartTask03(void const * argument);
 void StartTask04(void const * argument);
+void StartTask05(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 void MX_ADC1_Init(void);
+
 
 /* USER CODE BEGIN FunctionPrototypes */
 
@@ -119,7 +131,7 @@ void MX_FREERTOS_Init(void) {
 
   /* Create the thread(s) */
   /* definition and creation of defaultTask */
-  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
+  osThreadDef(defaultTask, StartDefaultTask, osPriorityRealtime, 0, 128);
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
   /* definition and creation of SettFartTask */
@@ -136,6 +148,8 @@ void MX_FREERTOS_Init(void) {
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
+  osThreadDef(ADCtask, StartTask05, osPriorityRealtime, 0, 128);
+  ADCTaskHandle = osThreadCreate(osThread(ADCtask), NULL);
   /* USER CODE END RTOS_THREADS */
 
   /* Create the queue(s) */
@@ -158,6 +172,7 @@ void MX_FREERTOS_Init(void) {
   EnableCTRLQueueHandle = xQueueCreate(32, sizeof(uint32_t));
 
   ISRSemaHandle = xSemaphoreCreateBinary();
+//  ADCSemaHandle = xSemaphoreCreateBinary();
 
   /* add queues, ... */
   /* USER CODE END RTOS_QUEUES */
@@ -172,9 +187,10 @@ void StartDefaultTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-	  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 10, 0);
+	  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 5, 0);
 	  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 	  vTaskDelete(defaultTaskHandle);
+	  MCP2515_WriteByte(MCP2515_CANINTF,0x00);
 
   }
   /* USER CODE END StartDefaultTask */
@@ -194,136 +210,140 @@ void StartTask02(void const * argument)
   /* USER CODE END StartTask02 */
 }
 
-/* StartTask03 function */
+/* StartTask03 function Enable*/
 void StartTask03(void const * argument)
 {
   /* USER CODE BEGIN StartTask03 */
 		uCAN_MSG tempRxMessage;
-		uCAN_MSG temptxmessage;
-
+//		uCAN_MSG temptxmessage;
 		uint32_t enableControll;
-		uint32_t enableControll2;
-		uint32_t enableControll3;
-		uint32_t enableControll4;
-		uint32_t enableControll5;
+
 
   /* Infinite loop */
   for(;;)
   {
+//	  HAL_GPIO_WritePin(GPIOB,GPIO_PIN_1, GPIO_PIN_SET); // testpinne om kort er på
+
 	 if(xSemaphoreTake(ISRSemaHandle,osWaitForever)){
-		if(CANSPI_Receive(&tempRxMessage)){
-		   switch (tempRxMessage.frame.id) {
-
-			case 0x050:
-
-				enableControll  = (tempRxMessage.frame.data0); // Fartsmotor
-				enableControll2 = (tempRxMessage.frame.data1); // Rotasjonsmotor
-				enableControll3 = tempRxMessage.frame.data2; // Kameramast
-				enableControll4 = tempRxMessage.frame.data3; // Robotarm/Gravefunksjon
-				enableControll5 = tempRxMessage.frame.data4; // Drill
-
-				if(enableControll != 0) {
-					HAL_GPIO_WritePin(GPIOE, GPIO_PIN_12, GPIO_PIN_SET); // Fartsmotor på
-				}else if(enableControll == 0) {
-					HAL_GPIO_WritePin(GPIOE, GPIO_PIN_12, GPIO_PIN_RESET); // Fartsmotor av
-				}
-				if(enableControll2 != 0) {
-					HAL_GPIO_WritePin(GPIOE, GPIO_PIN_12, GPIO_PIN_SET); // Rotasjonsmotor på
-				}else if(enableControll2 == 0) {
-					HAL_GPIO_WritePin(GPIOE, GPIO_PIN_12, GPIO_PIN_RESET); // Rotasjonsmotor av
-				}
-				if(enableControll3 != 0) {
-					HAL_GPIO_WritePin(GPIOE, GPIO_PIN_12, GPIO_PIN_SET); // Kameramast på
-				}else if(enableControll3 == 0) {
-					HAL_GPIO_WritePin(GPIOE, GPIO_PIN_12, GPIO_PIN_RESET); // Kameramast av
-				}
-				if(enableControll4 != 0) {
-					HAL_GPIO_WritePin(GPIOE, GPIO_PIN_12, GPIO_PIN_SET); // Gravefunksjon på
-				}else if(enableControll4 == 0) {
-					HAL_GPIO_WritePin(GPIOE, GPIO_PIN_12, GPIO_PIN_RESET); // Gravefunksjon av
-				}
-				if(enableControll5 != 0) {
-					HAL_GPIO_WritePin(GPIOE, GPIO_PIN_12, GPIO_PIN_SET); // Drill på
-				}else if(enableControll5 == 0) {
-					HAL_GPIO_WritePin(GPIOE, GPIO_PIN_12, GPIO_PIN_RESET); // Drill av
-				}
-			default:
-				break;
+		if(CANSPI_Receive(&tempRxMessage)) {
+  			 switch (tempRxMessage.frame.id) {
+  			  case 0x050:
+				enableControll = (tempRxMessage.frame.data0);
+				ENABLE_select(enableControll);
+  			  default:
+  				break;
+  			}
+//
+//			enableControll  = (tempRxMessage.frame.data0);
+//			ENABLE_select(enableControll);
+//			vTaskDelay(10);
+//		   if(tempRxMessage.frame.id&0x050) {
+//				enableControll  = (tempRxMessage.frame.data0);
+//				ENABLE_select(enableControll);
+//				vTaskDelay(10);
 		   }
-		}
+
+
 	 }
   } // for loop
   /* USER CODE END StartTask03 */
 }
 
 
-  /* StartTask04 function */
+/* StartTask04 function */
 void StartTask04(void const * argument)
 {
-  	uCAN_MSG tempRxMessage;
-  	uCAN_MSG temptxmessage;
-    for(;;)
-    {
 
-//    	    	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_1, GPIO_PIN_SET); // Pinne PD2
+ for(;;)
+ {
 
-    	    	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_15, GPIO_PIN_SET); // LED2
-
-    	    	temptxmessage.frame.idType = dSTANDARD_CAN_MSG_ID_2_0B;
-    	    	temptxmessage.frame.id = 0x050;
-    	    	temptxmessage.frame.dlc = 8;
-    	    	temptxmessage.frame.data0 = 0xFF;
-    	    	temptxmessage.frame.data1 = 0xFF;
-
-    	    	CANSPI_Transmit(&temptxmessage);
-    	    	vTaskDelay(100);
-
-    	    	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_15, GPIO_PIN_RESET);
-    	    	temptxmessage.frame.idType = dSTANDARD_CAN_MSG_ID_2_0B;
-    	    	temptxmessage.frame.id = 0x050;
-    	    	temptxmessage.frame.dlc = 8;
-    	    	temptxmessage.frame.data0 = 0x0;
-    	    	temptxmessage.frame.data1 = 0x0;
-
-    	    	CANSPI_Transmit(&temptxmessage);
-    	    	vTaskDelay(100);
-
-    	////    	tempRxMessage.frame.idType = dSTANDARD_CAN_MSG_ID_2_0B;
-    	////    	tempRxMessage.frame.id = 0x050;
-    	////    	tempRxMessage.frame.dlc = 8;
-    	////    	tempRxMessage.frame.data0 = 0x10;
-    	////    	tempRxMessage.frame.data1 = 0xFF;
-    	//
-    	//
-    	//  	  if(xSemaphoreTake(ISRSemaHandle,osWaitForever)){
-    	//  		  if(CANSPI_Receive(&tempRxMessage)){
-    	//  			  switch (tempRxMessage.frame.id) {
-    	//  				case 0x050:
-    	//
-    	//  					xQueueSend(EnableCTRLQueueHandle,&enableControll,0);
-    	//  					//vTaskDelay(1000);
-    	//  					xQueueSend(EnableCTRLQueueHandle,&enableControll2,0);
-    	//  					xQueueSend(EnableCTRLQueueHandle,&enableControll3,0);
-    	//  					xQueueSend(EnableCTRLQueueHandle,&enableControll4,0);
-    	//  					xQueueSend(EnableCTRLQueueHandle,&enableControll5,0);
-    	//  	//				fart = (tempRxMessage.frame.data0<<8)+tempRxMessage.frame.data1;
-    	//  	//			  	radius = (tempRxMessage.frame.data2<<24)+(tempRxMessage.frame.data3<<16)+(tempRxMessage.frame.data4<<8)+tempRxMessage.frame.data5;
-    	//  	//				xQueueSend(FartQueueHandle,&fart,0);
-    	//  	//			  	xQueueSend(AckerQueueHandle,&radius,0);
-    	//  				default:
-    	//  					break;
-    	//  			}
-
-    	//  //				}
-    	// 			}
-    	// 	 }
-    }
+ } // for loop end
 //    /* USER CODE END StartTask04 */
 }
 
 /* USER CODE BEGIN Application */
 
+/* StartTask05 function ADC */
+void StartTask05(void const * argument)
+{
+  /* USER CODE BEGIN StartTask05 */
+
+// 	uCAN_MSG tempRxMessage;
+  	uCAN_MSG tempADCtxmessage;
+
+  	uint8_t i = 0;
+  	uint16_t adcarray[8];
+ 	MX_ADC1_Init();
+
+
+  /* Infinite loop */
+
+  for(;;)
+  {
+	//  if(xSemaphoreTake(ISRSemaHandle, osWaitForever)){
+	//	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_15, GPIO_PIN_SET); // LED2
+
+		tempADCtxmessage.frame.idType = dSTANDARD_CAN_MSG_ID_2_0B;
+		tempADCtxmessage.frame.id = 0x051;
+		tempADCtxmessage.frame.dlc = 8;
+		MUX_select(i);
+		vTaskDelay(10);
+
+		HAL_ADC_Start(&hadc1);
+		HAL_ADC_PollForConversion(&hadc1, 100);
+		adcarray[i] = HAL_ADC_GetValue(&hadc1);
+		HAL_ADC_Stop(&hadc1);
+
+		i++;
+		if(i>=8){
+
+		//	HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_1);
+
+
+			tempADCtxmessage.frame.data0 = i; // kjøremotor
+			tempADCtxmessage.frame.data1 = adcarray[1]; // rotasjonsmotor
+			tempADCtxmessage.frame.data2 = adcarray[2]; // kameramast
+			tempADCtxmessage.frame.data3 = adcarray[3]; // arm/gravefunksjon
+			tempADCtxmessage.frame.data4 = adcarray[4]; // drill
+			tempADCtxmessage.frame.data5 = adcarray[5]; // temp1
+			tempADCtxmessage.frame.data6 = adcarray[6]; // temp2
+			tempADCtxmessage.frame.data7 = adcarray[7]; // ??
 //
+			CANSPI_Transmit(&tempADCtxmessage);
+//
+			i=0;
+			vTaskDelay(100);
+		}
+
+
+ // }
+
+//	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_12, GPIO_PIN_SET); // LED1
+//
+//	HAL_ADC_Start(&hadc1);
+//
+//	HAL_ADC_PollForConversion(&hadc1, 100);
+//
+//	adcResult = HAL_ADC_GetValue(&hadc1);
+//
+//	HAL_ADC_Stop(&hadc1);
+//
+//	tempADCtxmessage.frame.idType = dSTANDARD_CAN_MSG_ID_2_0B;
+//	tempADCtxmessage.frame.id = 0x051;
+//	tempADCtxmessage.frame.dlc = 8;
+//
+//	tempADCtxmessage.frame.data0 = adcResult>>8;
+//	tempADCtxmessage.frame.data1 = adcResult;
+//
+//	CANSPI_Transmit(&tempADCtxmessage);
+
+
+
+
+  }
+  /* USER CODE END StartTask02 */
+}
+
 /* USER CODE END Application */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

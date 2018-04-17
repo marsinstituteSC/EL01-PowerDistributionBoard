@@ -66,7 +66,7 @@
 ADC_HandleTypeDef hadc1; //extern framfor
 
 /* USER CODE BEGIN Private defines */
-uint32_t adcResult = 0;
+
 
 
 

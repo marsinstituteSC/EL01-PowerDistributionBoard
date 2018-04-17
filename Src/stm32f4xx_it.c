@@ -48,6 +48,7 @@ extern TIM_HandleTypeDef htim2;
 extern uCAN_MSG rxMessage;
 extern QueueHandle_t MeldingQueueHandle;
 extern SemaphoreHandle_t ISRSemaHandle;
+//extern SemaphoreHandle_t ADCSemaHandle;
 uint8_t paa = 1;
 uint16_t teller = 0;
 

@@ -64,10 +64,10 @@
 //#include "stm32f4xx_hal_adc_ex.h"
 
 // **** ADC **** //
-#define ADC_0V_VALUE                            0
-#define ADC_1V_VALUE                            1241
-#define ADC_2V_VALUE                            2482
-#define ADC_3V_VALUE                            3723
+//#define ADC_0V_VALUE                            0
+//#define ADC_1V_VALUE                            1241
+//#define ADC_2V_VALUE                            2482
+//#define ADC_3V_VALUE                            3723
 // **** ADC END **** //
 
 /* USER CODE END Includes */

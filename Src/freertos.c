@@ -57,6 +57,7 @@
 #include "mux.h"
 #include "enable.h"
 #include "MCP2515.h"
+#include "AvPaaKontroll.h"
 
 /* USER CODE BEGIN Includes */     
 #define B(x) S_to_binary_(#x)
@@ -73,7 +74,7 @@ QueueHandle_t FartQueueHandle;
 QueueHandle_t AckerQueueHandle;
 QueueHandle_t EnableCTRLQueueHandle;
 SemaphoreHandle_t ISRSemaHandle;
-//SemaphoreHandle_t ADCSemaHandle;
+
 
 uint16_t teller2 = 0;
 extern uint16_t tellertest;
@@ -81,15 +82,9 @@ extern uint16_t tellertest;
 
 uint32_t enablekontrolltest;
 
-//osMessageQId FartQueueHandle;
-//osMessageQId RadiusQueueHandle;
-//osMessageQId MeldingQueueHandle;
 
 /* USER CODE BEGIN Variables */
-//#define ADC_0V_VALUE                            0
-//#define ADC_1V_VALUE                            1241
-//#define ADC_2V_VALUE                            2482
-//#define ADC_3V_VALUE                            3723
+
 
 /* USER CODE END Variables */
 
@@ -102,6 +97,7 @@ void StartTask05(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 void MX_ADC1_Init(void);
+
 
 
 /* USER CODE BEGIN FunctionPrototypes */
@@ -215,24 +211,25 @@ void StartTask03(void const * argument)
 {
   /* USER CODE BEGIN StartTask03 */
 		uCAN_MSG tempRxMessage;
-//		uCAN_MSG temptxmessage;
-		uint32_t enableControll;
+		uint8_t byte0;
 
 
   /* Infinite loop */
   for(;;)
   {
-//	  HAL_GPIO_WritePin(GPIOB,GPIO_PIN_1, GPIO_PIN_SET); // testpinne om kort er på
-
-	 if(xSemaphoreTake(ISRSemaHandle,osWaitForever)){
+//	 if(xSemaphoreTake(ISRSemaHandle,osWaitForever)){
 		if(CANSPI_Receive(&tempRxMessage)) {
   			 switch (tempRxMessage.frame.id) {
+  			  case 0x200:
+// 				byte0 = (tempRxMessage.frame.data0);
+//				ENABLE_select(byte0);
   			  case 0x050:
-				enableControll = (tempRxMessage.frame.data0);
-				ENABLE_select(enableControll);
+  				HAL_GPIO_WritePin(GPIOE, GPIO_PIN_12, GPIO_PIN_SET);
+  				byte0 = (tempRxMessage.frame.data0);
+  				avPaaKontroll(byte0);
   			  default:
   				break;
-  			}
+//  			}
 //
 //			enableControll  = (tempRxMessage.frame.data0);
 //			ENABLE_select(enableControll);
@@ -268,11 +265,11 @@ void StartTask05(void const * argument)
 {
   /* USER CODE BEGIN StartTask05 */
 
-// 	uCAN_MSG tempRxMessage;
-  	uCAN_MSG tempADCtxmessage;
+	uCAN_MSG tempADCtxmessage;
+  	uCAN_MSG tempADCtxmessage2;
 
   	uint8_t i = 0;
-  	uint16_t adcarray[8];
+  	uint16_t adcarray[16];
  	MX_ADC1_Init();
 
 
@@ -280,64 +277,50 @@ void StartTask05(void const * argument)
 
   for(;;)
   {
-	//  if(xSemaphoreTake(ISRSemaHandle, osWaitForever)){
-	//	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_15, GPIO_PIN_SET); // LED2
+	  	  	tempADCtxmessage.frame.idType = dSTANDARD_CAN_MSG_ID_2_0B;
+	  		tempADCtxmessage.frame.id = 0x051;
+	  		tempADCtxmessage.frame.dlc = 8;
 
-		tempADCtxmessage.frame.idType = dSTANDARD_CAN_MSG_ID_2_0B;
-		tempADCtxmessage.frame.id = 0x051;
-		tempADCtxmessage.frame.dlc = 8;
-		MUX_select(i);
-		vTaskDelay(10);
+	  		tempADCtxmessage2.frame.idType = dSTANDARD_CAN_MSG_ID_2_0B;
+	  		tempADCtxmessage2.frame.id = 0x052;
+	  		tempADCtxmessage2.frame.dlc = 8;
 
-		HAL_ADC_Start(&hadc1);
-		HAL_ADC_PollForConversion(&hadc1, 100);
-		adcarray[i] = HAL_ADC_GetValue(&hadc1);
-		HAL_ADC_Stop(&hadc1);
+	  		MUX_select(i);
+	  		vTaskDelay(10);
 
-		i++;
-		if(i>=8){
+	  		HAL_ADC_Start(&hadc1);
+	  		HAL_ADC_PollForConversion(&hadc1, 100);
+	  		adcarray[i] = HAL_ADC_GetValue(&hadc1);
+	  		HAL_ADC_Stop(&hadc1);
 
-		//	HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_1);
-
-
-			tempADCtxmessage.frame.data0 = i; // kjøremotor
-			tempADCtxmessage.frame.data1 = adcarray[1]; // rotasjonsmotor
-			tempADCtxmessage.frame.data2 = adcarray[2]; // kameramast
-			tempADCtxmessage.frame.data3 = adcarray[3]; // arm/gravefunksjon
-			tempADCtxmessage.frame.data4 = adcarray[4]; // drill
-			tempADCtxmessage.frame.data5 = adcarray[5]; // temp1
-			tempADCtxmessage.frame.data6 = adcarray[6]; // temp2
-			tempADCtxmessage.frame.data7 = adcarray[7]; // ??
-//
-			CANSPI_Transmit(&tempADCtxmessage);
-//
-			i=0;
-			vTaskDelay(100);
-		}
+	  		vTaskDelay(10);
+	  		i++;
+	  		if(i>=16){
 
 
- // }
+	  			tempADCtxmessage.frame.data0 = adcarray[0]; // batteri
+	  			tempADCtxmessage.frame.data1 = adcarray[1]; // kjøremotor1
+	  			tempADCtxmessage.frame.data2 = adcarray[2]; // kjøremotor2
+	  			tempADCtxmessage.frame.data3 = adcarray[3]; // kjøremotor3
+	  			tempADCtxmessage.frame.data4 = adcarray[4]; // kjøremotor4
+	  			tempADCtxmessage.frame.data5 = adcarray[5]; // kjøremotor5
+	  			tempADCtxmessage.frame.data6 = adcarray[6]; // kjøremotor6
+	  			tempADCtxmessage.frame.data7 = adcarray[7]; // rotasjonsmotor6
 
-//	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_12, GPIO_PIN_SET); // LED1
-//
-//	HAL_ADC_Start(&hadc1);
-//
-//	HAL_ADC_PollForConversion(&hadc1, 100);
-//
-//	adcResult = HAL_ADC_GetValue(&hadc1);
-//
-//	HAL_ADC_Stop(&hadc1);
-//
-//	tempADCtxmessage.frame.idType = dSTANDARD_CAN_MSG_ID_2_0B;
-//	tempADCtxmessage.frame.id = 0x051;
-//	tempADCtxmessage.frame.dlc = 8;
-//
-//	tempADCtxmessage.frame.data0 = adcResult>>8;
-//	tempADCtxmessage.frame.data1 = adcResult;
-//
-//	CANSPI_Transmit(&tempADCtxmessage);
+	  			CANSPI_Transmit(&tempADCtxmessage);
+	  			tempADCtxmessage2.frame.data0 = adcarray[8]; // kameramast
+	  			tempADCtxmessage2.frame.data1 = adcarray[9]; // arm/gravefunksjon48
+	  			tempADCtxmessage2.frame.data2 = adcarray[10]; // arm/gravefunksjon12
+	  			tempADCtxmessage2.frame.data3 = adcarray[11]; // temp1
+	  			tempADCtxmessage2.frame.data4 = adcarray[12]; // temp2
+	  			tempADCtxmessage2.frame.data5 = adcarray[13]; // drill
+	  			tempADCtxmessage2.frame.data6 = adcarray[14]; // xx
+	  			tempADCtxmessage2.frame.data7 = adcarray[15]; // xx
 
-
+	  			CANSPI_Transmit(&tempADCtxmessage2);
+	  			i=0;
+	  			vTaskDelay(100);
+	  		}
 
 
   }

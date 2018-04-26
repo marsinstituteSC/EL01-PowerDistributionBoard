@@ -144,57 +144,6 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 	while (1) {
 
-//    	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_15, GPIO_PIN_SET); // LED2
-//    	HAL_Delay(1000);
-//    	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_15, GPIO_PIN_RESET); // LED2
-//    	HAL_Delay(1000);
-
-//		HAL_GPIO_WritePin(GPIOE, GPIO_PIN_15, GPIO_PIN_SET); // LED1
-//
-//		HAL_ADC_Start(&hadc1);
-//
-//		HAL_ADC_PollForConversion(&hadc1, 100);
-//
-//		adcResult = HAL_ADC_GetValue(&hadc1);
-//
-//		HAL_ADC_Stop(&hadc1);
-
-
-//				if ((adcResult >= ADC_0V_VALUE) && (adcResult < ADC_1V_VALUE))
-//						    {
-//						      HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);
-//						      HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_RESET);
-//						      HAL_GPIO_WritePin(GPIOC, GPIO_PIN_3, GPIO_PIN_RESET);
-//						      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
-//						}
-//
-//						if ((adcResult >= ADC_1V_VALUE) && (adcResult < ADC_2V_VALUE))
-//							{
-//						      HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);
-//						      HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_SET);
-//						      HAL_GPIO_WritePin(GPIOC, GPIO_PIN_3, GPIO_PIN_RESET);
-//						      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
-//						}
-//
-//						if ((adcResult >= ADC_2V_VALUE) && (adcResult < ADC_3V_VALUE))
-//						   {
-//						      HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);
-//						      HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_SET);
-//						      HAL_GPIO_WritePin(GPIOC, GPIO_PIN_3, GPIO_PIN_SET);
-//						      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
-//						}
-//
-//						if (adcResult >= ADC_3V_VALUE)
-//						   {
-//						      HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);
-//						      HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_SET);
-//						      HAL_GPIO_WritePin(GPIOC, GPIO_PIN_3, GPIO_PIN_SET);
-//						      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
-//						 }
-
-
-
-//				HAL_Delay(100);
 	}
   /* USER CODE END 3 */
 

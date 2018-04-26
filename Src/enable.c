@@ -9,7 +9,7 @@ void ENABLE_select(uint8_t select) {
 			HAL_GPIO_WritePin(GPIOE, GPIO_PIN_12, GPIO_PIN_RESET); // LED 1
 
 			HAL_GPIO_WritePin(GPIOE,GPIO_PIN_1, GPIO_PIN_SET); // Kjoremotor
-			HAL_GPIO_WritePin(GPIOE,GPIO_PIN_2, GPIO_PIN_SET); // Rotasjonsmotor
+	//		HAL_GPIO_WritePin(GPIOE,GPIO_PIN_2, GPIO_PIN_SET); // Rotasjonsmotor
 			HAL_GPIO_WritePin(GPIOE,GPIO_PIN_3, GPIO_PIN_SET); // Kameramast
 			HAL_GPIO_WritePin(GPIOE,GPIO_PIN_4, GPIO_PIN_SET); // Arm/Gravemekanisme
 
@@ -20,7 +20,7 @@ void ENABLE_select(uint8_t select) {
 			HAL_GPIO_WritePin(GPIOE, GPIO_PIN_15, GPIO_PIN_RESET); // LED 2
 
 			HAL_GPIO_WritePin(GPIOE,GPIO_PIN_1, GPIO_PIN_RESET); // Kjoremotor
-			HAL_GPIO_WritePin(GPIOE,GPIO_PIN_2, GPIO_PIN_RESET); // Rotasjonsmotor
+		//	HAL_GPIO_WritePin(GPIOE,GPIO_PIN_2, GPIO_PIN_RESET); // Rotasjonsmotor
 			HAL_GPIO_WritePin(GPIOE,GPIO_PIN_3, GPIO_PIN_RESET); // Kameramast
 			HAL_GPIO_WritePin(GPIOE,GPIO_PIN_4, GPIO_PIN_RESET); // Arm/Gravemekanisme
 

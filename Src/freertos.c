@@ -207,43 +207,25 @@ void StartTask02(void const * argument)
 }
 
 /* StartTask03 function Enable*/
-void StartTask03(void const * argument)
-{
-  /* USER CODE BEGIN StartTask03 */
+void StartTask03(void const * argument) {
 		uCAN_MSG tempRxMessage;
 		uint8_t byte0;
-
-
-  /* Infinite loop */
-  for(;;)
-  {
-//	 if(xSemaphoreTake(ISRSemaHandle,osWaitForever)){
+  for(;;) {
+	 if(xSemaphoreTake(ISRSemaHandle,osWaitForever)){
 		if(CANSPI_Receive(&tempRxMessage)) {
   			 switch (tempRxMessage.frame.id) {
-  			  case 0x200:
-// 				byte0 = (tempRxMessage.frame.data0);
-//				ENABLE_select(byte0);
   			  case 0x050:
-  				HAL_GPIO_WritePin(GPIOE, GPIO_PIN_12, GPIO_PIN_SET);
+ 				byte0 = (tempRxMessage.frame.data0);
+				MODUS_select(byte0);
+  			  case 0x200:
   				byte0 = (tempRxMessage.frame.data0);
   				avPaaKontroll(byte0);
   			  default:
   				break;
-//  			}
-//
-//			enableControll  = (tempRxMessage.frame.data0);
-//			ENABLE_select(enableControll);
-//			vTaskDelay(10);
-//		   if(tempRxMessage.frame.id&0x050) {
-//				enableControll  = (tempRxMessage.frame.data0);
-//				ENABLE_select(enableControll);
-//				vTaskDelay(10);
+  			}
 		   }
-
-
 	 }
   } // for loop
-  /* USER CODE END StartTask03 */
 }
 
 
@@ -268,29 +250,25 @@ void StartTask05(void const * argument)
 	uCAN_MSG tempADCtxmessage;
   	uCAN_MSG tempADCtxmessage2;
 
-  	uint8_t i = 0;
-  	uint16_t adcarray[16];
+  	uint8_t i = 6;
+  	uint16_t adcArray[16];
  	MX_ADC1_Init();
-
-
-  /* Infinite loop */
-
   for(;;)
   {
 	  	  	tempADCtxmessage.frame.idType = dSTANDARD_CAN_MSG_ID_2_0B;
-	  		tempADCtxmessage.frame.id = 0x051;
+	  		tempADCtxmessage.frame.id = 0x201;
 	  		tempADCtxmessage.frame.dlc = 8;
 
 	  		tempADCtxmessage2.frame.idType = dSTANDARD_CAN_MSG_ID_2_0B;
-	  		tempADCtxmessage2.frame.id = 0x052;
+	  		tempADCtxmessage2.frame.id = 0x202;
 	  		tempADCtxmessage2.frame.dlc = 8;
 
 	  		MUX_select(i);
-	  		vTaskDelay(10);
+	  		vTaskDelay(1000);
 
 	  		HAL_ADC_Start(&hadc1);
 	  		HAL_ADC_PollForConversion(&hadc1, 100);
-	  		adcarray[i] = HAL_ADC_GetValue(&hadc1);
+	  		adcArray[i] = HAL_ADC_GetValue(&hadc1);
 	  		HAL_ADC_Stop(&hadc1);
 
 	  		vTaskDelay(10);
@@ -298,28 +276,28 @@ void StartTask05(void const * argument)
 	  		if(i>=16){
 
 
-	  			tempADCtxmessage.frame.data0 = adcarray[0]; // batteri
-	  			tempADCtxmessage.frame.data1 = adcarray[1]; // kjøremotor1
-	  			tempADCtxmessage.frame.data2 = adcarray[2]; // kjøremotor2
-	  			tempADCtxmessage.frame.data3 = adcarray[3]; // kjøremotor3
-	  			tempADCtxmessage.frame.data4 = adcarray[4]; // kjøremotor4
-	  			tempADCtxmessage.frame.data5 = adcarray[5]; // kjøremotor5
-	  			tempADCtxmessage.frame.data6 = adcarray[6]; // kjøremotor6
-	  			tempADCtxmessage.frame.data7 = adcarray[7]; // rotasjonsmotor6
-
+	  			tempADCtxmessage.frame.data0 = adcArray[0]; // batteri
+	  			tempADCtxmessage.frame.data1 = adcArray[1]; // kjøremotor1
+	  			tempADCtxmessage.frame.data2 = adcArray[2]; // kjøremotor2
+	  			tempADCtxmessage.frame.data3 = adcArray[3]; // kjøremotor3
+	  			tempADCtxmessage.frame.data4 = adcArray[4]; // kjøremotor4
+	  			tempADCtxmessage.frame.data5 = adcArray[5]; // kjøremotor5
+	  			tempADCtxmessage.frame.data6 = adcArray[6]; // kjøremotor6
+	  			tempADCtxmessage.frame.data7 = adcArray[7]; // rotasjonsmotor
 	  			CANSPI_Transmit(&tempADCtxmessage);
-	  			tempADCtxmessage2.frame.data0 = adcarray[8]; // kameramast
-	  			tempADCtxmessage2.frame.data1 = adcarray[9]; // arm/gravefunksjon48
-	  			tempADCtxmessage2.frame.data2 = adcarray[10]; // arm/gravefunksjon12
-	  			tempADCtxmessage2.frame.data3 = adcarray[11]; // temp1
-	  			tempADCtxmessage2.frame.data4 = adcarray[12]; // temp2
-	  			tempADCtxmessage2.frame.data5 = adcarray[13]; // drill
-	  			tempADCtxmessage2.frame.data6 = adcarray[14]; // xx
-	  			tempADCtxmessage2.frame.data7 = adcarray[15]; // xx
+
+	  			tempADCtxmessage2.frame.data0 = adcArray[8]; // kameramast
+	  			tempADCtxmessage2.frame.data1 = adcArray[9]; // arm/gravefunksjon48
+	  			tempADCtxmessage2.frame.data2 = adcArray[10]; // arm/gravefunksjon12
+	  			tempADCtxmessage2.frame.data3 = adcArray[11]; // temp1
+	  			tempADCtxmessage2.frame.data4 = adcArray[12]; // temp2
+	  			tempADCtxmessage2.frame.data5 = adcArray[13]; // drill
+	  			tempADCtxmessage2.frame.data6 = adcArray[14]; // xx
+	  			tempADCtxmessage2.frame.data7 = adcArray[15]; // xx
 
 	  			CANSPI_Transmit(&tempADCtxmessage2);
 	  			i=0;
-	  			vTaskDelay(100);
+//	  			vTaskDelay(100);
 	  		}
 
 

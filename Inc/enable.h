@@ -4,6 +4,6 @@
 #ifndef ENABLE_H_
 #define ENABLE_H_
 
-void ENABLE_select(uint8_t select);
+void MODUS_select(uint8_t select);
 
 #endif /* ENABLE_H_ */

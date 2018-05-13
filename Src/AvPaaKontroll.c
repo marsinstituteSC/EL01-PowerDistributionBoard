@@ -1,10 +1,6 @@
 #include "AvPaaKontroll.h"
 
 void avPaaKontroll(uint8_t select) {
-
-
-	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_15, GPIO_PIN_SET);
-//	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_1, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_1, (select&0b10000000)>>7); // motor forran
 	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_3, (select&0b01000000)>>6); // motor midten
 	HAL_GPIO_WritePin(GPIOE, GPIO_PIN_4, (select&0b00100000)>>5); // motor bak

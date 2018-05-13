@@ -133,16 +133,25 @@ int main(void)
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in freertos.c) */
-  MX_FREERTOS_Init();
+ // MX_FREERTOS_Init();
 
   /* Start scheduler */
-  osKernelStart();
+//  osKernelStart();
   
   /* We should never get here as control is now taken by the scheduler */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 	while (1) {
+		uCAN_MSG tempADCtxmessage;
+  		tempADCtxmessage.frame.idType = dSTANDARD_CAN_MSG_ID_2_0B;
+  		tempADCtxmessage.frame.id = 0x402;
+  		tempADCtxmessage.frame.dlc = 1;
+
+		tempADCtxmessage.frame.data0 = 0x03; // batteri
+
+		CANSPI_Transmit(&tempADCtxmessage);
+		HAL_Delay(10);
 
 	}
   /* USER CODE END 3 */

@@ -1,6 +1,6 @@
 #include "enable.h"
 
-void ENABLE_select(uint8_t select) {
+void MODUS_select(uint8_t select) {
 
 	switch (select) {
 
